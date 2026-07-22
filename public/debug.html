@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head><title>Debug Orders</title></head>
+<body style="font-family:monospace; padding:20px; background:#111; color:#0f0;">
+<h2>🔍 Diagnostic des commandes El-Mawid</h2>
+<pre id="output">Chargement...</pre>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const out = document.getElementById('output');
+function log(msg) { out.textContent += '\n' + msg; }
+
+const url = 'https://hlmfcxgnlepelfvapnnu.supabase.co';
+const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsbWZjeGdubGVwZWxmdmFwbm51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MDU1OTgsImV4cCI6MjA5OTE4MTU5OH0.bNt9bWD24kj1P5oit0r8dE2ukpPr8lq_6oyt1QlsLPs';
+
+const supabase = createClient(url, key);
+out.textContent = '✅ Supabase client created';
+
+// 1. Check if restaurants table has data
+log('\n--- RESTAURANTS ---');
+const { data: restaurants, error: rErr } = await supabase.from('restaurants').select('*');
+if (rErr) log('❌ Error: ' + rErr.message);
+else log('Found ' + (restaurants?.length || 0) + ' restaurants: ' + JSON.stringify(restaurants, null, 2));
+
+// 2. Check if orders table has data
+log('\n--- ALL ORDERS ---');
+const { data: orders, error: oErr } = await supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(10);
+if (oErr) log('❌ Error: ' + oErr.message);
+else log('Found ' + (orders?.length || 0) + ' orders: ' + JSON.stringify(orders, null, 2));
+
+// 3. Check orders with restaurant_id filter
+log('\n--- ORDERS WITH restaurant_id = 00000000-... ---');
+const { data: filtered, error: fErr } = await supabase.from('orders').select('*').eq('restaurant_id', '00000000-0000-0000-0000-000000000001');
+if (fErr) log('❌ Error: ' + fErr.message);
+else log('Found ' + (filtered?.length || 0) + ' filtered orders');
+
+// 4. Check users table
+log('\n--- USERS ---');
+const { data: users, error: uErr } = await supabase.from('users').select('*');
+if (uErr) log('❌ Error: ' + uErr.message);
+else log('Found ' + (users?.length || 0) + ' users: ' + JSON.stringify(users, null, 2));
+
+// 5. Try inserting a test order
+log('\n--- TEST INSERT ---');
+const { data: testOrder, error: tErr } = await supabase.from('orders').insert({
+  restaurant_id: '00000000-0000-0000-0000-000000000001',
+  table_number: 99,
+  customer_name: 'TEST DIAGNOSTIC',
+  status: 'pending',
+  total: 100,
+}).select().single();
+if (tErr) log('❌ Insert error: ' + tErr.message);
+else log('✅ Test order inserted: ' + JSON.stringify(testOrder, null, 2));
+
+// 6. Check realtime publication
+log('\n--- REALTIME CHECK ---');
+const channel = supabase.channel('test-realtime').on(
+  'postgres_changes',
+  { event: '*', schema: 'public', table: 'orders' },
+  (payload) => log('🔔 Realtime event: ' + JSON.stringify(payload))
+).subscribe((status) => {
+  log('Realtime subscription status: ' + status);
+});
+
+log('\n✅ Diagnostic terminé. Vérifiez les résultats ci-dessus.');
+</script>
+</body>
+</html>

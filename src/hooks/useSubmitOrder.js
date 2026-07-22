@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { DEFAULT_RESTAURANT_ID } from '../admin/services/authService';
 
 export function useSubmitOrder() {
   const [loading, setLoading] = useState(false);
@@ -25,6 +26,7 @@ export function useSubmitOrder() {
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
+          restaurant_id: DEFAULT_RESTAURANT_ID,
           table_number: tableNumber,
           customer_name: customerName || null,
           notes: notes || null,
