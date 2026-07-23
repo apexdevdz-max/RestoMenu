@@ -66,6 +66,18 @@ export const orderService = {
     return channel;
   },
 
+  // Delete processed orders by IDs
+  async deleteProcessedOrders(orderIds) {
+    if (!orderIds || orderIds.length === 0) return;
+
+    const { error } = await supabase
+      .from('orders')
+      .delete()
+      .in('id', orderIds);
+
+    if (error) throw error;
+  },
+
   unsubscribe(channel) {
     supabase.removeChannel(channel);
   },

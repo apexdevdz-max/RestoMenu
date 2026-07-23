@@ -1,5 +1,6 @@
 import { useRestaurant } from '../hooks/useRestaurant';
 import RestaurantForm from '../components/settings/RestaurantForm';
+import OrderPurgeSettings from '../components/settings/OrderPurgeSettings';
 
 export default function SettingsPage() {
   const { restaurant, loading, updateRestaurant } = useRestaurant();
@@ -20,16 +21,26 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Content */}
+      {/* Content — 2-column grid */}
       {loading ? (
-        <div className="space-y-4 max-w-2xl">
-          <div className="skeleton h-20 rounded-xl" />
-          <div className="skeleton h-12 rounded-xl" />
-          <div className="skeleton h-12 rounded-xl" />
-          <div className="skeleton h-12 rounded-xl" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="skeleton h-20 rounded-xl" />
+            <div className="skeleton h-12 rounded-xl" />
+            <div className="skeleton h-12 rounded-xl" />
+            <div className="skeleton h-12 rounded-xl" />
+          </div>
+          <div className="space-y-4">
+            <div className="skeleton h-20 rounded-xl" />
+            <div className="skeleton h-12 rounded-xl" />
+            <div className="skeleton h-12 rounded-xl" />
+          </div>
         </div>
       ) : restaurant ? (
-        <RestaurantForm restaurant={restaurant} onUpdate={updateRestaurant} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RestaurantForm restaurant={restaurant} onUpdate={updateRestaurant} />
+          <OrderPurgeSettings />
+        </div>
       ) : (
         <div className="bg-white rounded-xl shadow-card p-8 text-center max-w-2xl">
           <p className="text-sm text-brand-gray">Restaurant non trouvé. Vérifiez la configuration Supabase.</p>

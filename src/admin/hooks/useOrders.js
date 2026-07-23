@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { orderService } from '../services/orderService';
+import { getOrdersToDelete } from './usePurgeSettings';
 
 export function useOrders() {
   const { restaurantId } = useAuth();
@@ -46,6 +47,21 @@ export function useOrders() {
     }
   }, [fetchOrders]);
 
+  // Purge expired processed orders from database
+  const purgeExpiredOrders = useCallback(async () => {
+    try {
+      const idsToDelete = getOrdersToDelete(orders);
+      if (idsToDelete.length === 0) return;
+
+      await orderService.deleteProcessedOrders(idsToDelete);
+      // Remove from local state
+      setOrders(prev => prev.filter(o => !idsToDelete.includes(o.id)));
+      console.log(`🗑️ Purged ${idsToDelete.length} expired orders from database`);
+    } catch (err) {
+      console.error('Error purging orders:', err);
+    }
+  }, [orders]);
+
   // Setup realtime subscription
   useEffect(() => {
     fetchOrders();
@@ -76,6 +92,15 @@ export function useOrders() {
       }
     };
   }, [restaurantId, fetchOrders]);
+
+  // Run purge check every minute
+  useEffect(() => {
+    // Initial purge check
+    purgeExpiredOrders();
+
+    const interval = setInterval(purgeExpiredOrders, 60_000);
+    return () => clearInterval(interval);
+  }, [purgeExpiredOrders]);
 
   // Split orders
   const newOrders = orders.filter(o => o.status === 'new' || o.status === 'pending');

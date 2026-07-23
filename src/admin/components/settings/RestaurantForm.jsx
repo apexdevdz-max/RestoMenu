@@ -41,7 +41,7 @@ export default function RestaurantForm({ restaurant, onUpdate }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-card p-6 max-w-2xl space-y-5">
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-card p-6 space-y-5 h-fit">
       <h2 className="font-display font-bold text-lg text-brand-dark mb-1">Informations du restaurant</h2>
       <p className="text-sm text-brand-gray mb-4">Gérez les informations de votre établissement.</p>
 
