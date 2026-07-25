@@ -3,11 +3,20 @@ import { useTables } from '../hooks/useTables';
 import TableCard from '../components/tables/TableCard';
 import TableFilters from '../components/tables/TableFilters';
 import TableStats from '../components/tables/TableStats';
+import AddTableModal from '../components/tables/AddTableModal';
+import EditTableModal from '../components/tables/EditTableModal';
+import TableDrawer from '../components/tables/TableDrawer';
 
 export default function TablesPage() {
-  const { tables, loading } = useTables();
+  const { tables, loading, addTable, updateTable, deleteTable, releaseTable } = useTables();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+
+  // Modals/drawer state
+  const [showAdd, setShowAdd] = useState(false);
+  const [editTable, setEditTable] = useState(null);
+  const [drawerTable, setDrawerTable] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const filteredTables = useMemo(() => {
     return tables.filter(t => {
@@ -17,6 +26,24 @@ export default function TablesPage() {
       return true;
     });
   }, [tables, search, statusFilter]);
+
+  async function handleDelete(table) {
+    if (table.status === 'occupied') {
+      alert('Impossible de supprimer une table occupée. Libérez-la d\'abord.');
+      return;
+    }
+    setDeleteConfirm(table);
+  }
+
+  async function confirmDelete() {
+    if (!deleteConfirm) return;
+    try {
+      await deleteTable(deleteConfirm.id);
+    } catch (err) {
+      console.error('Delete error:', err);
+    }
+    setDeleteConfirm(null);
+  }
 
   if (loading) {
     return (
@@ -44,12 +71,23 @@ export default function TablesPage() {
             <p className="text-sm text-brand-gray">Gérez les tables de votre restaurant</p>
           </div>
         </div>
-        <TableFilters
-          search={search}
-          onSearchChange={setSearch}
-          statusFilter={statusFilter}
-          onStatusChange={setStatusFilter}
-        />
+        <div className="flex items-center gap-3">
+          <TableFilters
+            search={search}
+            onSearchChange={setSearch}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+          />
+          <button
+            onClick={() => setShowAdd(true)}
+            className="bg-brand-red hover:bg-brand-red-dark text-white font-bold text-sm px-4 py-2 rounded-lg shadow-btn transition-all active:scale-[0.98] flex items-center gap-1.5 whitespace-nowrap"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Nouvelle Table
+          </button>
+        </div>
       </div>
 
       {/* Grid */}
@@ -61,7 +99,13 @@ export default function TablesPage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {filteredTables.map(table => (
-              <TableCard key={table.id} table={table} />
+              <TableCard
+                key={table.id}
+                table={table}
+                onViewOrder={(t) => setDrawerTable(t)}
+                onEdit={(t) => setEditTable(t)}
+                onDelete={(t) => handleDelete(t)}
+              />
             ))}
           </div>
         )}
@@ -69,6 +113,57 @@ export default function TablesPage() {
         {/* Stats */}
         <TableStats tables={tables} />
       </div>
+
+      {/* Add Table Modal */}
+      <AddTableModal
+        open={showAdd}
+        onClose={() => setShowAdd(false)}
+        onAdd={addTable}
+        existingNumbers={tables.map(t => t.table_number)}
+      />
+
+      {/* Edit Table Modal */}
+      <EditTableModal
+        open={!!editTable}
+        table={editTable}
+        onClose={() => setEditTable(null)}
+        onSave={updateTable}
+      />
+
+      {/* Table Detail Drawer */}
+      <TableDrawer
+        table={drawerTable}
+        open={!!drawerTable}
+        onClose={() => setDrawerTable(null)}
+        onRelease={releaseTable}
+      />
+
+      {/* Delete Confirmation */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center animate-[fadeIn_0.2s_ease-out]">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setDeleteConfirm(null)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 animate-[sheetUp_0.3s_cubic-bezier(0.16,1,0.3,1)]">
+            <h2 className="font-display font-bold text-lg text-brand-dark mb-2">Supprimer la table ?</h2>
+            <p className="text-sm text-brand-gray mb-5">
+              Êtes-vous sûr de vouloir supprimer la <strong>Table {deleteConfirm.table_number}</strong> ? Cette action est irréversible.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 px-4 py-2.5 border border-gray-200 text-sm font-semibold text-brand-gray rounded-xl hover:bg-gray-50 transition"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition-all active:scale-[0.98]"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

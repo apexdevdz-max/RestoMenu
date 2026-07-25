@@ -138,3 +138,10 @@ body {
   animation: shimmer 1.5s infinite;
   border-radius: 8px;
 }
+
+/* Drawer slide from right */
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
