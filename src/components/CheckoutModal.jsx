@@ -3,11 +3,13 @@ import { useCart } from '../context/CartContext';
 import { useSubmitOrder } from '../hooks/useSubmitOrder';
 
 export default function CheckoutModal({ open, tableId, onClose, onSuccess }) {
-  const { items, totalPrice, clearCart } = useCart();
-  const { submitOrder, loading } = useSubmitOrder();
+  const { items, totalPrice, clearCart, isShared, submitSharedOrder, isValidating } = useCart();
+  const { submitOrder, loading: legacyLoading } = useSubmitOrder();
   const [customerName, setCustomerName] = useState('');
   const [notes, setNotes] = useState('');
   const [isClosing, setIsClosing] = useState(false);
+
+  const loading = isShared ? isValidating : legacyLoading;
 
   useEffect(() => {
     if (open) {
@@ -33,17 +35,28 @@ export default function CheckoutModal({ open, tableId, onClose, onSuccess }) {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    const result = await submitOrder({
-      tableNumber: parseInt(tableId) || 1,
-      customerName: customerName.trim(),
-      notes: notes.trim(),
-      items,
-      totalPrice,
-    });
-
-    if (result.success) {
-      clearCart();
-      onSuccess();
+    if (isShared && submitSharedOrder) {
+      // Shared cart: create order from Supabase cart items
+      const result = await submitSharedOrder({
+        customerName: customerName.trim(),
+        notes: notes.trim(),
+      });
+      if (result.success) {
+        onSuccess();
+      }
+    } else {
+      // Local cart fallback
+      const result = await submitOrder({
+        tableNumber: parseInt(tableId) || 1,
+        customerName: customerName.trim(),
+        notes: notes.trim(),
+        items,
+        totalPrice,
+      });
+      if (result.success) {
+        clearCart();
+        onSuccess();
+      }
     }
   }
 

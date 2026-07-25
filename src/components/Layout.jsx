@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useCart } from '../context/CartContext';
 import Header from './Header';
 import MobileMenu from './MobileMenu';
 import CartBar from './CartBar';
@@ -11,6 +12,22 @@ export default function Layout({ tableId, children }) {
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+
+  const { orderValidated, resetValidated } = useCart();
+
+  // Listen for broadcast: another client validated the shared order
+  useEffect(() => {
+    if (orderValidated) {
+      setCheckoutOpen(false);
+      setCartDrawerOpen(false);
+      setOrderSuccess(true);
+    }
+  }, [orderValidated]);
+
+  function handleDismissConfirmation() {
+    setOrderSuccess(false);
+    resetValidated?.();
+  }
 
   return (
     <div className="bg-white min-h-screen">
@@ -28,6 +45,7 @@ export default function Layout({ tableId, children }) {
 
       {/* Sticky Cart Bar */}
       <CartBar
+        tableId={tableId}
         onCartClick={() => setCartDrawerOpen(true)}
         onCheckout={() => setCheckoutOpen(true)}
       />
@@ -56,7 +74,7 @@ export default function Layout({ tableId, children }) {
       {/* Order Confirmation */}
       <OrderConfirmation
         open={orderSuccess}
-        onClose={() => setOrderSuccess(false)}
+        onClose={handleDismissConfirmation}
       />
     </div>
   );

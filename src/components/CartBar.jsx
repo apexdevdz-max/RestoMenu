@@ -1,7 +1,7 @@
 import { useCart } from '../context/CartContext';
 
-export default function CartBar({ onCartClick, onCheckout }) {
-  const { totalItems, totalPrice } = useCart();
+export default function CartBar({ tableId, onCartClick, onCheckout }) {
+  const { totalItems, totalPrice, isShared } = useCart();
 
   if (totalItems === 0) return null;
 
@@ -24,7 +24,7 @@ export default function CartBar({ onCartClick, onCheckout }) {
           </div>
           <div className="min-w-0 text-left">
             <p className="text-sm font-semibold text-brand-dark truncate group-hover:text-brand-red transition">
-              Mon Panier: {totalItems} article{totalItems > 1 ? 's' : ''}
+              {isShared ? `Panier partagé — Table ${tableId}` : `Mon Panier: ${totalItems} article${totalItems > 1 ? 's' : ''}`}
             </p>
             <p className="text-sm font-bold text-brand-red">({totalPrice} DA)</p>
           </div>

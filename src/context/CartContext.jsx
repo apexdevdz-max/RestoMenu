@@ -1,11 +1,13 @@
 import { createContext, useContext, useReducer, useCallback, useMemo } from 'react';
+import { useSharedCart } from '../hooks/useSharedCart';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 const CartContext = createContext(null);
 
 // Generate unique cart item ID
 const generateId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
-// Reducer
+// Reducer (local fallback only)
 function cartReducer(state, action) {
   switch (action.type) {
     case 'ADD_ITEM': {
@@ -57,8 +59,8 @@ function cartReducer(state, action) {
   }
 }
 
-// Provider
-export function CartProvider({ children }) {
+// Local-only cart hook (fallback)
+function useLocalCart() {
   const [state, dispatch] = useReducer(cartReducer, { items: [] });
 
   const addItem = useCallback((product, quantity, selectedOptions) => {
@@ -87,13 +89,12 @@ export function CartProvider({ children }) {
     [state.items]
   );
 
-  // Count how many of a specific product are in the cart
   const getProductCount = useCallback(
     (productId) => state.items.filter(i => i.productId === productId).reduce((sum, i) => sum + i.quantity, 0),
     [state.items]
   );
 
-  const value = useMemo(() => ({
+  return {
     items: state.items,
     totalItems,
     totalPrice,
@@ -102,7 +103,22 @@ export function CartProvider({ children }) {
     removeItem,
     clearCart,
     getProductCount,
-  }), [state.items, totalItems, totalPrice, addItem, updateQuantity, removeItem, clearCart, getProductCount]);
+    isShared: false,
+    orderValidated: false,
+    resetValidated: () => {},
+    submitSharedOrder: null,
+    isValidating: false,
+  };
+}
+
+// Provider
+export function CartProvider({ tableId, children }) {
+  const shared = useSharedCart(tableId);
+  const local = useLocalCart();
+
+  // Use shared cart when Supabase is configured and we have a tableId
+  const useShared = isSupabaseConfigured && tableId;
+  const value = useShared ? shared : local;
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

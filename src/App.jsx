@@ -1,10 +1,20 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 
 // Customer pages (unchanged)
 import TablePage from './pages/TablePage';
 import NotFound from './pages/NotFound';
+
+// Wrapper that passes tableId to CartProvider for shared cart
+function TableWithCart() {
+  const { tableId } = useParams();
+  return (
+    <CartProvider tableId={tableId}>
+      <TablePage />
+    </CartProvider>
+  );
+}
 
 // Admin pages
 import LoginPage from './admin/pages/LoginPage';
@@ -22,11 +32,7 @@ export default function App() {
       <AuthProvider>
         <Routes>
           {/* ==================== CUSTOMER APP (unchanged) ==================== */}
-          <Route path="/table/:tableId" element={
-            <CartProvider>
-              <TablePage />
-            </CartProvider>
-          } />
+          <Route path="/table/:tableId" element={<TableWithCart />} />
 
           {/* Dev convenience: redirect root to table 1 */}
           <Route path="/" element={<Navigate to="/table/1" replace />} />
