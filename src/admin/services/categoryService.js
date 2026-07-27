@@ -11,7 +11,7 @@ export const categoryService = {
     return data || [];
   },
 
-  async createCategory(restaurantId, name) {
+  async createCategory(restaurantId, name, iconName, iconType, imageUrl) {
     const maxOrder = await categoryService._getMaxSortOrder(restaurantId);
     const { data, error } = await supabase
       .from('categories')
@@ -20,6 +20,9 @@ export const categoryService = {
         name,
         slug: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
         sort_order: maxOrder + 1,
+        icon_name: iconName || null,
+        icon_type: iconType || 'lucide',
+        image_url: imageUrl || null,
       })
       .select()
       .single();

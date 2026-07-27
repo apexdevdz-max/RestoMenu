@@ -44,6 +44,7 @@ export default function ProductDetailModal({ product, open, onClose }) {
   function handleOptionToggle(group, item) {
     setSelectedOptions(prev => {
       const next = { ...prev };
+      const maxSel = group.max_selections || 0; // 0 = unlimited
 
       if (group.type === 'single') {
         // Radio behavior: select one or deselect
@@ -53,13 +54,17 @@ export default function ProductDetailModal({ product, open, onClose }) {
           next[group.id] = item;
         }
       } else {
-        // Checkbox behavior
+        // Checkbox behavior with max enforcement
         const current = next[group.id] || [];
         const exists = current.find(o => o.id === item.id);
         if (exists) {
           next[group.id] = current.filter(o => o.id !== item.id);
           if (next[group.id].length === 0) delete next[group.id];
         } else {
+          // Enforce max_selections limit
+          if (maxSel > 0 && current.length >= maxSel) {
+            return prev; // Block: already at max
+          }
           next[group.id] = [...current, item];
         }
       }
@@ -162,7 +167,11 @@ export default function ProductDetailModal({ product, open, onClose }) {
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-display font-semibold text-sm text-brand-dark">{group.name}</h3>
                     <span className="text-[10px] text-brand-gray font-medium px-2 py-0.5 bg-gray-100 rounded-full">
-                      {group.type === 'single' ? 'Choisir 1' : 'Plusieurs choix'}
+                      {group.type === 'single'
+                        ? 'Choisir 1'
+                        : (group.max_selections && group.max_selections > 0)
+                          ? `Jusqu'à ${group.max_selections} choix`
+                          : 'Plusieurs choix'}
                       {group.required && ' • Obligatoire'}
                     </span>
                   </div>

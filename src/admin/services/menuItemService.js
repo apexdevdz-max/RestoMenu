@@ -31,6 +31,7 @@ export const menuItemService = {
         media_type: item.media_type || 'image',
         is_available: item.is_available ?? true,
         sort_order: item.sort_order || 0,
+        options: item.options || {},
       })
       .select()
       .single();

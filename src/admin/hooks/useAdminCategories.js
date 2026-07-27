@@ -20,8 +20,8 @@ export function useAdminCategories() {
 
   useEffect(() => { fetchCategories(); }, [fetchCategories]);
 
-  const createCategory = useCallback(async (name) => {
-    const cat = await categoryService.createCategory(restaurantId, name);
+  const createCategory = useCallback(async (name, iconName, iconType, imageUrl) => {
+    const cat = await categoryService.createCategory(restaurantId, name, iconName, iconType, imageUrl);
     setCategories(prev => [...prev, cat]);
     return cat;
   }, [restaurantId]);
