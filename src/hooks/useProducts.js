@@ -7,8 +7,9 @@ export function useProducts(categoryId) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const channelRef = useRef(null);
+  const mountedRef = useRef(true);
 
-  // Fetch products with option groups
+  // Fetch products
   const fetchProducts = useCallback(async () => {
     if (!isSupabaseConfigured) {
       const filtered = categoryId
@@ -20,15 +21,13 @@ export function useProducts(categoryId) {
     }
 
     try {
+      setLoading(true);
+
+      // Simple query — no join on legacy tables
+      // Options are stored in the JSONB `options` column and transformed below
       let query = supabase
         .from('products')
-        .select(`
-          *,
-          option_groups (
-            *,
-            option_items (*)
-          )
-        `)
+        .select('*')
         .eq('is_available', true)
         .order('sort_order', { ascending: true });
 
@@ -39,6 +38,7 @@ export function useProducts(categoryId) {
       const { data, error: err } = await query;
 
       if (err) throw err;
+      if (!mountedRef.current) return;
 
       // Helper: convert JSONB options to option_groups format
       function buildOptionGroups(product) {
@@ -141,40 +141,34 @@ export function useProducts(categoryId) {
         return groups;
       }
 
-      // Sort nested option_groups and merge with JSONB options
-      const sorted = (data || []).map(product => {
-        // Existing option_groups from DB relations
-        const dbGroups = (product.option_groups || [])
-          .sort((a, b) => a.sort_order - b.sort_order)
-          .map(group => ({
-            ...group,
-            option_items: (group.option_items || []).sort((a, b) => a.sort_order - b.sort_order),
-          }));
+      // Build option groups from JSONB for each product
+      const sorted = (data || []).map(product => ({
+        ...product,
+        option_groups: buildOptionGroups(product),
+      }));
 
-        // JSONB-based option groups
-        const jsonGroups = buildOptionGroups(product);
-
-        return {
-          ...product,
-          option_groups: [...dbGroups, ...jsonGroups],
-        };
-      });
-
-      setProducts(sorted);
+      if (mountedRef.current) {
+        setProducts(sorted);
+      }
     } catch (err) {
       console.error('Error fetching products:', err);
-      setError(err.message);
-      // Fallback
-      const filtered = categoryId
-        ? FALLBACK_PRODUCTS.filter(p => p.category_id === categoryId)
-        : FALLBACK_PRODUCTS;
-      setProducts(filtered);
+      if (mountedRef.current) {
+        setError(err.message);
+        // Fallback
+        const filtered = categoryId
+          ? FALLBACK_PRODUCTS.filter(p => p.category_id === categoryId)
+          : FALLBACK_PRODUCTS;
+        setProducts(filtered);
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   }, [categoryId]);
 
   useEffect(() => {
+    mountedRef.current = true;
     fetchProducts();
 
     // Subscribe to realtime changes on products
@@ -186,7 +180,7 @@ export function useProducts(categoryId) {
     }
 
     channelRef.current = supabase
-      .channel('products-realtime')
+      .channel(`products-realtime-${categoryId || 'all'}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'products' },
@@ -198,6 +192,7 @@ export function useProducts(categoryId) {
       .subscribe();
 
     return () => {
+      mountedRef.current = false;
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;

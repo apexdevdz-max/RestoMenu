@@ -73,12 +73,28 @@ export default function CartDrawer({ open, onClose, onCheckout }) {
           ) : (
             items.map(item => (
               <div key={item.cartItemId} className="flex gap-3 bg-brand-gray-light rounded-xl p-3">
-                {/* Image */}
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-16 h-16 rounded-lg object-cover bg-brand-card-bg flex-shrink-0"
-                />
+                {/* Media (image or video) */}
+                {(() => {
+                  const url = item.image || '';
+                  const isVideo = /\.(mp4|webm|mov|ogg)(\?|$)/i.test(url) || url.includes('/video/upload/');
+                  return isVideo ? (
+                    <video
+                      src={url}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-16 h-16 rounded-lg object-cover bg-brand-card-bg flex-shrink-0"
+                    />
+                  ) : (
+                    <img
+                      src={url}
+                      alt={item.name}
+                      className="w-16 h-16 rounded-lg object-cover bg-brand-card-bg flex-shrink-0"
+                      onError={e => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  );
+                })()}
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">

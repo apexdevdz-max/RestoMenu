@@ -7,6 +7,7 @@ export function useCategories() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const channelRef = useRef(null);
+  const mountedRef = useRef(true);
 
   const fetchCategories = useCallback(async () => {
     if (!isSupabaseConfigured) {
@@ -16,24 +17,34 @@ export function useCategories() {
     }
 
     try {
+      setLoading(true);
+
       const { data, error: err } = await supabase
         .from('categories')
         .select('*')
         .order('sort_order', { ascending: true });
 
       if (err) throw err;
-      setCategories(data || []);
+
+      if (mountedRef.current) {
+        setCategories(data || []);
+      }
     } catch (err) {
       console.error('Error fetching categories:', err);
-      setError(err.message);
-      // Fallback to local data on error
-      setCategories(FALLBACK_CATEGORIES);
+      if (mountedRef.current) {
+        setError(err.message);
+        // Fallback to local data on error
+        setCategories(FALLBACK_CATEGORIES);
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     fetchCategories();
 
     // Subscribe to realtime changes on categories
@@ -52,6 +63,7 @@ export function useCategories() {
       .subscribe();
 
     return () => {
+      mountedRef.current = false;
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
