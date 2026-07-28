@@ -1,0 +1,50 @@
+{
+  "header": {
+    "slogan": "ذوقوا الجزائر",
+    "table": "طاولة"
+  },
+  "nav": {
+    "all": "الكل",
+    "menu": "القائمة"
+  },
+  "product": {
+    "add": "أضف",
+    "unavailable": "غير متوفر",
+    "unavailableMessage": "هذا الطبق غير متوفر حالياً",
+    "currency": "د.ج"
+  },
+  "cart": {
+    "myCart": "سلتي",
+    "shared": "السلة المشتركة",
+    "articles": "عنصر",
+    "articles_plural": "عناصر",
+    "table": "طاولة",
+    "clear": "إفراغ السلة",
+    "clearConfirm": "هل تريد إفراغ السلة بالكامل؟",
+    "empty": "سلتك فارغة",
+    "emptyHint": "أضف أطباقاً من القائمة",
+    "total": "المجموع",
+    "checkout": "اطلب الآن"
+  },
+  "checkout": {
+    "title": "تأكيد الطلب",
+    "customerName": "اسمك",
+    "customerNamePlaceholder": "مثال: أحمد",
+    "notes": "ملاحظات / تعليمات",
+    "notesPlaceholder": "مثال: بدون بصل، مطهو جيداً...",
+    "submit": "تأكيد الطلب",
+    "submitting": "جاري الإرسال...",
+    "orderSent": "تم إرسال الطلب!",
+    "orderSentMessage": "تم إرسال طلبك بنجاح.",
+    "close": "إغلاق",
+    "tableLabel": "طاولة"
+  },
+  "detail": {
+    "addToCart": "أضف"
+  },
+  "lang": {
+    "fr": "FR",
+    "ar": "AR",
+    "en": "EN"
+  }
+}

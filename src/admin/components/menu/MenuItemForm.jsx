@@ -167,9 +167,9 @@ export default function MenuItemForm({ open, item, categories, categoryId, onClo
   const [addingGroup, setAddingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [newGroupType, setNewGroupType] = useState('priced');
-  const [mediaFile, setMediaFile] = useState(null);
-  const [mediaPreview, setMediaPreview] = useState('');
-  const [previewType, setPreviewType] = useState('image');
+  const [gallery, setGallery] = useState([]);
+  const [pendingFiles, setPendingFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const fileRef = useRef(null);
@@ -208,8 +208,9 @@ export default function MenuItemForm({ open, item, categories, categoryId, onClo
         })));
         const hasOpts = (opts.sizes?.length > 0 || opts.supplements?.length > 0 || opts.removals?.length > 0 || opts.sauces?.length > 0 || opts.custom_groups?.length > 0);
         setShowOptions(hasOpts);
-        setMediaPreview(item.image_url || '');
-        setPreviewType(item.media_type || 'image');
+        // Gallery: use images array, fallback to image_url
+        const existingImages = item.images?.length > 0 ? item.images : (item.image_url ? [item.image_url] : []);
+        setGallery(existingImages);
       } else {
         setForm({ name: '', description: '', price: '', category_id: categoryId || '', is_available: true, image_url: '', media_type: 'image' });
         setOptions({
@@ -221,22 +222,37 @@ export default function MenuItemForm({ open, item, categories, categoryId, onClo
         });
         setCustomGroups([]);
         setShowOptions(false);
-        setMediaPreview('');
-        setPreviewType('image');
+        setGallery([]);
       }
-      setMediaFile(null);
+      setPendingFiles([]);
       setError('');
       setAddingGroup(false);
       setNewGroupName('');
     }
   }, [open, item, categoryId]);
 
-  function handleMediaChange(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    setMediaFile(file);
-    setMediaPreview(URL.createObjectURL(file));
-    setPreviewType(file.type.startsWith('video/') ? 'video' : 'image');
+  async function handleGalleryAdd(e) {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setUploading(true);
+    try {
+      const newUrls = [];
+      for (const file of files) {
+        const result = await menuItemService.uploadMedia(file);
+        newUrls.push(result.url);
+      }
+      setGallery(prev => [...prev, ...newUrls]);
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError('Erreur lors du téléversement.');
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
+
+  function removeGalleryImage(idx) {
+    setGallery(prev => prev.filter((_, i) => i !== idx));
   }
 
   function cleanOptions() {
@@ -293,14 +309,9 @@ export default function MenuItemForm({ open, item, categories, categoryId, onClo
 
     setSaving(true);
     try {
-      let image_url = form.image_url;
-      let media_type = form.media_type;
-
-      if (mediaFile) {
-        const result = await menuItemService.uploadMedia(mediaFile);
-        image_url = result.url;
-        media_type = result.mediaType;
-      }
+      // Primary image = first gallery item, fallback to existing
+      const image_url = gallery[0] || form.image_url || '';
+      const media_type = /\.(mp4|webm|mov|ogg)(\?|$)/i.test(image_url) || image_url.includes('/video/upload/') ? 'video' : 'image';
 
       await onSave({
         name: form.name.trim(),
@@ -310,6 +321,7 @@ export default function MenuItemForm({ open, item, categories, categoryId, onClo
         is_available: form.is_available,
         image_url,
         media_type,
+        images: gallery,
         options: cleanOptions(),
       });
       onClose();
@@ -339,37 +351,60 @@ export default function MenuItemForm({ open, item, categories, categoryId, onClo
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Media Upload */}
+          {/* Gallery Upload */}
           <div>
-            <label className="block text-sm font-semibold text-brand-dark mb-1.5">Image / Vidéo</label>
+            <label className="block text-sm font-semibold text-brand-dark mb-1.5">Images / Vidéos</label>
+            {/* Thumbnails */}
+            {gallery.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {gallery.map((url, idx) => {
+                  const isVid = /\.(mp4|webm|mov|ogg)(\?|$)/i.test(url) || url.includes('/video/upload/');
+                  return (
+                    <div key={idx} className="relative group">
+                      {isVid ? (
+                        <video src={url} className="w-16 h-16 object-cover rounded-lg bg-gray-100" muted />
+                      ) : (
+                        <img src={url} alt="" className="w-16 h-16 object-cover rounded-lg bg-gray-100" />
+                      )}
+                      {idx === 0 && (
+                        <span className="absolute -top-1 -left-1 text-[8px] font-bold bg-brand-red text-white px-1 py-0.5 rounded">1ère</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeGalleryImage(idx)}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition shadow"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {/* Add button */}
             <div
-              onClick={() => fileRef.current?.click()}
-              className="w-full h-40 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center cursor-pointer hover:border-brand-red/50 transition overflow-hidden relative"
+              onClick={() => !uploading && fileRef.current?.click()}
+              className={`w-full h-24 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center cursor-pointer hover:border-brand-red/50 transition ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
             >
-              {mediaPreview ? (
-                previewType === 'video' ? (
-                  <video src={mediaPreview} className="w-full h-full object-cover" autoPlay loop muted playsInline />
-                ) : (
-                  <img src={mediaPreview} alt="Preview" className="w-full h-full object-cover" />
-                )
+              {uploading ? (
+                <div className="flex items-center gap-2 text-xs text-brand-gray">
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Téléversement...
+                </div>
               ) : (
                 <div className="text-center">
-                  <svg className="w-8 h-8 text-gray-300 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg className="w-6 h-6 text-gray-300 mx-auto mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
                   </svg>
-                  <p className="text-xs text-brand-gray">Cliquez pour ajouter une image ou vidéo</p>
+                  <p className="text-[11px] text-brand-gray">Ajouter des images ou vidéos</p>
                 </div>
               )}
-              {mediaPreview && (
-                <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  previewType === 'video' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
-                }`}>
-                  {previewType === 'video' ? '🎬 Vidéo' : '🖼️ Image'}
-                </span>
-              )}
             </div>
-            <input ref={fileRef} type="file" accept="image/*,video/*" onChange={handleMediaChange} className="hidden" />
-            <p className="text-[10px] text-brand-gray mt-1">Formats acceptés : JPG, PNG, WebP, MP4, WebM</p>
+            <input ref={fileRef} type="file" accept="image/*,video/*" multiple onChange={handleGalleryAdd} className="hidden" />
+            <p className="text-[10px] text-brand-gray mt-1">Sélectionnez plusieurs fichiers à la fois. La 1ère image sera l'image principale.</p>
           </div>
 
           {/* Name */}

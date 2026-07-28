@@ -23,6 +23,9 @@ export function useSharedCart(tableNumber) {
   const clientId = useMemo(() => getClientId(), []);
   const tableNum = parseInt(tableNumber, 10) || 1;
 
+  // Auto-expiry: clear cart if untouched for 30 minutes
+  const CART_EXPIRY_MS = 30 * 60 * 1000;
+
   // Fetch all cart items for this table
   const fetchCartItems = useCallback(async () => {
     if (!isSupabaseConfigured) { setLoading(false); return; }
@@ -34,7 +37,27 @@ export function useSharedCart(tableNumber) {
         .eq('table_number', tableNum)
         .order('created_at', { ascending: true });
       if (error) throw error;
-      setItems(data || []);
+
+      const rows = data || [];
+
+      // Auto-expire: if all items are older than CART_EXPIRY_MS, purge them
+      if (rows.length > 0) {
+        const now = Date.now();
+        const latestUpdate = Math.max(...rows.map(r => new Date(r.created_at).getTime()));
+        if (now - latestUpdate > CART_EXPIRY_MS) {
+          console.log('[SharedCart] Cart expired, auto-clearing for table', tableNum);
+          await supabase
+            .from('table_cart_items')
+            .delete()
+            .eq('restaurant_id', DEFAULT_RESTAURANT_ID)
+            .eq('table_number', tableNum);
+          setItems([]);
+          setLoading(false);
+          return;
+        }
+      }
+
+      setItems(rows);
     } catch (err) {
       console.error('Error fetching shared cart:', err);
     } finally {

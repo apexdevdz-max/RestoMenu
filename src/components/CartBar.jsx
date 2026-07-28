@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext';
 
 export default function CartBar({ tableId, onCartClick, onCheckout }) {
   const { totalItems, totalPrice, isShared } = useCart();
+  const { t } = useTranslation();
 
   if (totalItems === 0) return null;
 
@@ -22,11 +24,14 @@ export default function CartBar({ tableId, onCartClick, onCheckout }) {
               {totalItems}
             </span>
           </div>
-          <div className="min-w-0 text-left">
+          <div className="min-w-0 text-start">
             <p className="text-sm font-semibold text-brand-dark truncate group-hover:text-brand-red transition">
-              {isShared ? `Panier partagé — Table ${tableId}` : `Mon Panier: ${totalItems} article${totalItems > 1 ? 's' : ''}`}
+              {isShared
+                ? `${t('cart.shared')} — ${t('cart.table')} ${tableId}`
+                : `${t('cart.myCart')}: ${totalItems} ${totalItems > 1 ? t('cart.articles_plural') : t('cart.articles')}`
+              }
             </p>
-            <p className="text-sm font-bold text-brand-red">({totalPrice} DA)</p>
+            <p className="text-sm font-bold text-brand-red">({totalPrice} {t('product.currency')})</p>
           </div>
         </button>
 
@@ -35,7 +40,7 @@ export default function CartBar({ tableId, onCartClick, onCheckout }) {
           onClick={onCheckout}
           className="flex-shrink-0 bg-brand-red hover:bg-brand-red-dark active:scale-95 text-white font-bold text-sm px-5 py-3 rounded-xl shadow-btn transition-all duration-200 whitespace-nowrap"
         >
-          VALIDER LA COMMANDE
+          {t('cart.checkout').toUpperCase()}
         </button>
       </div>
     </div>

@@ -1,0 +1,50 @@
+{
+  "header": {
+    "slogan": "Taste Algeria",
+    "table": "Table"
+  },
+  "nav": {
+    "all": "All",
+    "menu": "Menu"
+  },
+  "product": {
+    "add": "Add",
+    "unavailable": "Unavailable",
+    "unavailableMessage": "This dish is currently unavailable",
+    "currency": "DA"
+  },
+  "cart": {
+    "myCart": "My Cart",
+    "shared": "Shared cart",
+    "articles": "item",
+    "articles_plural": "items",
+    "table": "Table",
+    "clear": "Clear cart",
+    "clearConfirm": "Clear the entire cart?",
+    "empty": "Your cart is empty",
+    "emptyHint": "Add dishes from the menu",
+    "total": "Total",
+    "checkout": "Order"
+  },
+  "checkout": {
+    "title": "Confirm order",
+    "customerName": "Your name",
+    "customerNamePlaceholder": "E.g. Ahmed",
+    "notes": "Notes / Instructions",
+    "notesPlaceholder": "E.g. No onions, well done...",
+    "submit": "Submit order",
+    "submitting": "Sending...",
+    "orderSent": "Order sent!",
+    "orderSentMessage": "Your order has been sent successfully.",
+    "close": "Close",
+    "tableLabel": "Table"
+  },
+  "detail": {
+    "addToCart": "Add"
+  },
+  "lang": {
+    "fr": "FR",
+    "ar": "AR",
+    "en": "EN"
+  }
+}

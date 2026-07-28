@@ -25,10 +25,10 @@ export function useProducts(categoryId) {
 
       // Simple query — no join on legacy tables
       // Options are stored in the JSONB `options` column and transformed below
+      // Note: we fetch ALL products (including unavailable) so they show greyed out on client
       let query = supabase
         .from('products')
         .select('*')
-        .eq('is_available', true)
         .order('sort_order', { ascending: true });
 
       if (categoryId) {

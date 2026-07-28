@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext';
 
 export default function CartDrawer({ open, onClose, onCheckout }) {
-  const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
+  const { items, totalItems, totalPrice, updateQuantity, removeItem, clearCart } = useCart();
+  const { t } = useTranslation();
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
@@ -46,17 +48,30 @@ export default function CartDrawer({ open, onClose, onCheckout }) {
               <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
             <h2 className="font-display font-bold text-lg text-brand-dark">
-              Mon Panier ({totalItems})
+              {t('cart.myCart')} ({totalItems})
             </h2>
           </div>
-          <button
-            onClick={handleClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
-          >
-            <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-1">
+            {items.length > 0 && (
+              <button
+                onClick={() => { if (window.confirm(t('cart.clearConfirm'))) clearCart(); }}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 transition"
+                title="Vider le panier"
+              >
+                <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            )}
+            <button
+              onClick={handleClose}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
+            >
+              <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Items */}
@@ -68,7 +83,7 @@ export default function CartDrawer({ open, onClose, onCheckout }) {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
               </div>
-              <p className="text-sm text-brand-gray font-medium">Votre panier est vide</p>
+              <p className="text-sm text-brand-gray font-medium">{t('cart.empty')}</p>
             </div>
           ) : (
             items.map(item => (
@@ -140,7 +155,7 @@ export default function CartDrawer({ open, onClose, onCheckout }) {
                     </div>
 
                     {/* Line total */}
-                    <span className="font-display font-bold text-sm text-brand-red">{item.lineTotal} DA</span>
+                    <span className="font-display font-bold text-sm text-brand-red">{item.lineTotal} {t('product.currency')}</span>
                   </div>
                 </div>
               </div>
@@ -153,8 +168,8 @@ export default function CartDrawer({ open, onClose, onCheckout }) {
           <div className="border-t border-gray-100 px-5 py-3 space-y-3 bg-white">
             {/* Total */}
             <div className="flex items-center justify-between">
-              <span className="font-display font-semibold text-sm text-brand-dark">Total</span>
-              <span className="font-display font-bold text-xl text-brand-red">{totalPrice} DA</span>
+              <span className="font-display font-semibold text-sm text-brand-dark">{t('cart.total')}</span>
+              <span className="font-display font-bold text-xl text-brand-red">{totalPrice} {t('product.currency')}</span>
             </div>
 
             {/* Checkout */}
@@ -165,7 +180,7 @@ export default function CartDrawer({ open, onClose, onCheckout }) {
               }}
               className="w-full bg-brand-red hover:bg-brand-red-dark active:scale-[0.98] text-white font-bold text-sm py-3.5 rounded-xl shadow-btn transition-all duration-200"
             >
-              VALIDER LA COMMANDE
+              {t('cart.checkout').toUpperCase()}
             </button>
           </div>
         )}

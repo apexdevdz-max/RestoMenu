@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext';
 import { useSubmitOrder } from '../hooks/useSubmitOrder';
 
 export default function CheckoutModal({ open, tableId, onClose, onSuccess }) {
   const { items, totalPrice, clearCart, isShared, submitSharedOrder, isValidating } = useCart();
   const { submitOrder, loading: legacyLoading } = useSubmitOrder();
+  const { t } = useTranslation();
   const [customerName, setCustomerName] = useState('');
   const [notes, setNotes] = useState('');
   const [isClosing, setIsClosing] = useState(false);
@@ -82,7 +84,7 @@ export default function CheckoutModal({ open, tableId, onClose, onSuccess }) {
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
-          <h2 className="font-display font-bold text-lg text-brand-dark">Finaliser la commande</h2>
+          <h2 className="font-display font-bold text-lg text-brand-dark">{t('checkout.title')}</h2>
           <button
             onClick={handleClose}
             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
@@ -102,20 +104,20 @@ export default function CheckoutModal({ open, tableId, onClose, onSuccess }) {
               <svg className="w-5 h-5 text-brand-yellow-dark flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 5.5c-4.1 0-7.5 1.6-7.5 3.5 0 .4.2.8.5 1.1V18c0 1.1 3.1 2 7 2s7-.9 7-2v-7.9c.3-.3.5-.7.5-1.1 0-1.9-3.4-3.5-7.5-3.5zm0 1.5c3.3 0 6 1.2 6 2s-2.7 2-6 2-6-1.2-6-2 2.7-2 6-2z" />
               </svg>
-              <span className="text-sm font-semibold text-brand-dark">Table {tableId}</span>
+              <span className="text-sm font-semibold text-brand-dark">{t('checkout.tableLabel')} {tableId}</span>
             </div>
 
             {/* Customer Name */}
             <div>
               <label htmlFor="customerName" className="block text-sm font-semibold text-brand-dark mb-1.5">
-                Votre nom <span className="text-brand-gray font-normal">(optionnel)</span>
+                {t('checkout.customerName')} <span className="text-brand-gray font-normal">(optionnel)</span>
               </label>
               <input
                 id="customerName"
                 type="text"
                 value={customerName}
                 onChange={e => setCustomerName(e.target.value)}
-                placeholder="Ex: Mohamed"
+                placeholder={t('checkout.customerNamePlaceholder')}
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-brand-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition"
               />
             </div>
@@ -123,13 +125,13 @@ export default function CheckoutModal({ open, tableId, onClose, onSuccess }) {
             {/* Notes */}
             <div>
               <label htmlFor="orderNotes" className="block text-sm font-semibold text-brand-dark mb-1.5">
-                Notes <span className="text-brand-gray font-normal">(optionnel)</span>
+                {t('checkout.notes')} <span className="text-brand-gray font-normal">(optionnel)</span>
               </label>
               <textarea
                 id="orderNotes"
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
-                placeholder="Ex: Bien cuit, pas trop de sel..."
+                placeholder={t('checkout.notesPlaceholder')}
                 rows="3"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-brand-dark placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition"
               />
@@ -137,7 +139,7 @@ export default function CheckoutModal({ open, tableId, onClose, onSuccess }) {
 
             {/* Order Summary */}
             <div className="bg-brand-gray-light rounded-xl p-4 space-y-2">
-              <h3 className="font-display font-semibold text-sm text-brand-dark mb-2">Résumé</h3>
+              <h3 className="font-display font-semibold text-sm text-brand-dark mb-2">{t('cart.total')}</h3>
               {items.map(item => (
                 <div key={item.cartItemId} className="flex justify-between text-sm">
                   <span className="text-brand-gray">
@@ -148,12 +150,12 @@ export default function CheckoutModal({ open, tableId, onClose, onSuccess }) {
                       </span>
                     )}
                   </span>
-                  <span className="font-semibold text-brand-dark">{item.lineTotal} DA</span>
+                  <span className="font-semibold text-brand-dark">{item.lineTotal} {t('product.currency')}</span>
                 </div>
               ))}
               <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between">
-                <span className="font-display font-bold text-brand-dark">Total</span>
-                <span className="font-display font-bold text-xl text-brand-red">{totalPrice} DA</span>
+                <span className="font-display font-bold text-brand-dark">{t('cart.total')}</span>
+                <span className="font-display font-bold text-xl text-brand-red">{totalPrice} {t('product.currency')}</span>
               </div>
             </div>
           </div>
@@ -171,11 +173,11 @@ export default function CheckoutModal({ open, tableId, onClose, onSuccess }) {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Envoi en cours...
+                  {t('checkout.submitting')}
                 </>
               ) : (
                 <>
-                  CONFIRMER LA COMMANDE — {totalPrice} DA
+                  {t('checkout.submit').toUpperCase()} — {totalPrice} {t('product.currency')}
                 </>
               )}
             </button>

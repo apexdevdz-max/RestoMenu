@@ -58,6 +58,7 @@ export const tableService = {
   },
 
   async completeOrdersForTable(restaurantId, tableNumber) {
+    // 1. Mark all active orders as processed
     const { error } = await supabase
       .from('orders')
       .update({ status: 'processed', processed_at: new Date().toISOString() })
@@ -65,6 +66,14 @@ export const tableService = {
       .eq('table_number', tableNumber)
       .in('status', ['new', 'pending', 'preparing', 'ready']);
     if (error) throw error;
+
+    // 2. Clear any remaining shared cart items for this table
+    const { error: cartErr } = await supabase
+      .from('table_cart_items')
+      .delete()
+      .eq('restaurant_id', restaurantId)
+      .eq('table_number', tableNumber);
+    if (cartErr) console.error('Error clearing cart on table release:', cartErr);
   },
 
   // Realtime subscription for orders (to detect table status changes)

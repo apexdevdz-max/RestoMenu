@@ -1,0 +1,50 @@
+{
+  "header": {
+    "slogan": "Goûtez l'Algérie",
+    "table": "Table"
+  },
+  "nav": {
+    "all": "Tout",
+    "menu": "Menu"
+  },
+  "product": {
+    "add": "Ajouter",
+    "unavailable": "Indisponible",
+    "unavailableMessage": "Ce plat n'est pas disponible actuellement",
+    "currency": "DA"
+  },
+  "cart": {
+    "myCart": "Mon Panier",
+    "shared": "Panier partagé",
+    "articles": "article",
+    "articles_plural": "articles",
+    "table": "Table",
+    "clear": "Vider le panier",
+    "clearConfirm": "Vider tout le panier ?",
+    "empty": "Votre panier est vide",
+    "emptyHint": "Ajoutez des plats depuis le menu",
+    "total": "Total",
+    "checkout": "Commander"
+  },
+  "checkout": {
+    "title": "Confirmer la commande",
+    "customerName": "Votre nom",
+    "customerNamePlaceholder": "Ex: Ahmed",
+    "notes": "Notes / Instructions",
+    "notesPlaceholder": "Ex: Sans oignons, bien cuit...",
+    "submit": "Valider la commande",
+    "submitting": "Envoi en cours...",
+    "orderSent": "Commande envoyée !",
+    "orderSentMessage": "Votre commande a été envoyée avec succès.",
+    "close": "Fermer",
+    "tableLabel": "Table"
+  },
+  "detail": {
+    "addToCart": "Ajouter"
+  },
+  "lang": {
+    "fr": "FR",
+    "ar": "AR",
+    "en": "EN"
+  }
+}

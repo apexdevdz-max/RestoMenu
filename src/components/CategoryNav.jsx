@@ -1,8 +1,12 @@
+import { useTranslation } from 'react-i18next';
 import { useCategories } from '../hooks/useCategories';
+import { getTranslation } from '../lib/getTranslation';
 import CategoryIcon from './CategoryIcon';
 
 export default function CategoryNav({ activeCategoryId, onCategoryChange }) {
   const { categories, loading } = useCategories();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language?.slice(0, 2) || 'fr';
 
   if (loading) {
     return (
@@ -22,7 +26,7 @@ export default function CategoryNav({ activeCategoryId, onCategoryChange }) {
     <nav className="sticky top-14 z-30 bg-white border-b border-gray-100 shadow-sm">
       <div className="max-w-2xl mx-auto">
         <div className="category-nav flex items-center gap-1 px-3 py-2.5 overflow-x-auto">
-          {/* TOUT (all) */}
+          {/* ALL */}
           <button
             onClick={() => onCategoryChange(null)}
             className={`cat-btn flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
@@ -30,7 +34,7 @@ export default function CategoryNav({ activeCategoryId, onCategoryChange }) {
             }`}
           >
             <CategoryIcon name="LayoutGrid" className="w-4 h-4" />
-            TOUT
+            {t('nav.all').toUpperCase()}
           </button>
 
           {/* Dynamic categories */}
@@ -49,7 +53,7 @@ export default function CategoryNav({ activeCategoryId, onCategoryChange }) {
                 className="w-4 h-4"
                 active={activeCategoryId === cat.id}
               />
-              {cat.name.toUpperCase()}
+              {getTranslation(cat.name_i18n || cat.name, lang).toUpperCase()}
             </button>
           ))}
         </div>

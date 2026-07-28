@@ -29,6 +29,7 @@ export const menuItemService = {
         price: item.price,
         image_url: item.image_url || null,
         media_type: item.media_type || 'image',
+        images: item.images || [],
         is_available: item.is_available ?? true,
         sort_order: item.sort_order || 0,
         options: item.options || {},
