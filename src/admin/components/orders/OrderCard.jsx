@@ -2,6 +2,7 @@ import OrderItemList from './OrderItemList';
 
 export default function OrderCard({ order, type, onMarkProcessed }) {
   const isNew = type === 'new';
+  const isTakeaway = order.order_type === 'takeaway';
   const time = new Date(order.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   const processedTime = order.processed_at
     ? new Date(order.processed_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
@@ -25,7 +26,23 @@ export default function OrderCard({ order, type, onMarkProcessed }) {
               </svg>
             </div>
           )}
-          <h3 className="font-display font-bold text-sm text-brand-dark">Table {order.table_number}</h3>
+
+          {/* Order type badge */}
+          {isTakeaway ? (
+            <span className="inline-flex items-center gap-1 bg-violet-100 text-violet-700 text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              À emporter
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 5.5c-4.1 0-7.5 1.6-7.5 3.5 0 .4.2.8.5 1.1V18c0 1.1 3.1 2 7 2s7-.9 7-2v-7.9c.3-.3.5-.7.5-1.1 0-1.9-3.4-3.5-7.5-3.5zm0 1.5c3.3 0 6 1.2 6 2s-2.7 2-6 2-6-1.2-6-2 2.7-2 6-2z" />
+              </svg>
+              Table {order.table_number}
+            </span>
+          )}
         </div>
         <span className="text-xs text-brand-gray font-medium">{time}</span>
       </div>
@@ -37,6 +54,9 @@ export default function OrderCard({ order, type, onMarkProcessed }) {
       {order.customer_name && (
         <p className="text-xs text-brand-gray">
           <span className="font-medium">Client:</span> {order.customer_name}
+          {isTakeaway && order.customer_phone && (
+            <span className="ms-2 text-violet-600 font-medium">📞 {order.customer_phone}</span>
+          )}
         </p>
       )}
       {order.notes && (

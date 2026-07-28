@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 
-export default function Header({ tableId, onMenuOpen }) {
+export default function Header({ tableId, orderType = 'dine_in', onMenuOpen }) {
   const { t } = useTranslation();
+  const isTakeaway = orderType === 'takeaway';
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-nav">
@@ -27,15 +28,24 @@ export default function Header({ tableId, onMenuOpen }) {
           </div>
         </div>
 
-        {/* Right side: Language + Table */}
+        {/* Right side: Language + Table/Takeaway badge */}
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
-          <button className="flex items-center gap-1.5 bg-brand-yellow hover:bg-brand-yellow-dark active:scale-95 text-brand-dark font-semibold text-xs px-3 py-1.5 rounded-full transition-all shadow-sm">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 5.5c-4.1 0-7.5 1.6-7.5 3.5 0 .4.2.8.5 1.1V18c0 1.1 3.1 2 7 2s7-.9 7-2v-7.9c.3-.3.5-.7.5-1.1 0-1.9-3.4-3.5-7.5-3.5zm0 1.5c3.3 0 6 1.2 6 2s-2.7 2-6 2-6-1.2-6-2 2.7-2 6-2z" />
-            </svg>
-            {t('header.table')} {tableId}
-          </button>
+          {isTakeaway ? (
+            <span className="flex items-center gap-1.5 bg-violet-100 text-violet-700 font-semibold text-xs px-3 py-1.5 rounded-full shadow-sm">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              {t('header.takeaway')}
+            </span>
+          ) : (
+            <button className="flex items-center gap-1.5 bg-brand-yellow hover:bg-brand-yellow-dark active:scale-95 text-brand-dark font-semibold text-xs px-3 py-1.5 rounded-full transition-all shadow-sm">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 5.5c-4.1 0-7.5 1.6-7.5 3.5 0 .4.2.8.5 1.1V18c0 1.1 3.1 2 7 2s7-.9 7-2v-7.9c.3-.3.5-.7.5-1.1 0-1.9-3.4-3.5-7.5-3.5zm0 1.5c3.3 0 6 1.2 6 2s-2.7 2-6 2-6-1.2-6-2 2.7-2 6-2z" />
+              </svg>
+              {t('header.table')} {tableId}
+            </button>
+          )}
         </div>
       </div>
     </header>

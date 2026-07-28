@@ -7,7 +7,7 @@ import CartDrawer from './CartDrawer';
 import CheckoutModal from './CheckoutModal';
 import OrderConfirmation from './OrderConfirmation';
 
-export default function Layout({ tableId, children }) {
+export default function Layout({ tableId, orderType = 'dine_in', children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -37,6 +37,7 @@ export default function Layout({ tableId, children }) {
       {/* Header */}
       <Header
         tableId={tableId}
+        orderType={orderType}
         onMenuOpen={() => setMenuOpen(true)}
       />
 
@@ -46,6 +47,7 @@ export default function Layout({ tableId, children }) {
       {/* Sticky Cart Bar */}
       <CartBar
         tableId={tableId}
+        orderType={orderType}
         onCartClick={() => setCartDrawerOpen(true)}
         onCheckout={() => setCheckoutOpen(true)}
       />
@@ -64,6 +66,7 @@ export default function Layout({ tableId, children }) {
       <CheckoutModal
         open={checkoutOpen}
         tableId={tableId}
+        orderType={orderType}
         onClose={() => setCheckoutOpen(false)}
         onSuccess={() => {
           setCheckoutOpen(false);

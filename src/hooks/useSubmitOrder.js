@@ -7,7 +7,7 @@ export function useSubmitOrder() {
   const [error, setError] = useState(null);
   const [orderId, setOrderId] = useState(null);
 
-  async function submitOrder({ tableNumber, customerName, notes, items, totalPrice }) {
+  async function submitOrder({ tableNumber, customerName, customerPhone, notes, orderType = 'dine_in', items, totalPrice }) {
     setLoading(true);
     setError(null);
     setOrderId(null);
@@ -27,9 +27,11 @@ export function useSubmitOrder() {
         .from('orders')
         .insert({
           restaurant_id: DEFAULT_RESTAURANT_ID,
-          table_number: tableNumber,
+          table_number: orderType === 'takeaway' ? null : tableNumber,
           customer_name: customerName || null,
+          customer_phone: customerPhone || null,
           notes: notes || null,
+          order_type: orderType,
           status: 'pending',
           total: totalPrice,
         })

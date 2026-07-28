@@ -1,7 +1,8 @@
 {
   "header": {
     "slogan": "Goûtez l'Algérie",
-    "table": "Table"
+    "table": "Table",
+    "takeaway": "À emporter"
   },
   "nav": {
     "all": "Tout",
@@ -37,7 +38,9 @@
     "orderSent": "Commande envoyée !",
     "orderSentMessage": "Votre commande a été envoyée avec succès.",
     "close": "Fermer",
-    "tableLabel": "Table"
+    "tableLabel": "Table",
+    "phone": "Numéro de téléphone",
+    "phonePlaceholder": "Ex: 0661234567"
   },
   "detail": {
     "addToCart": "Ajouter"

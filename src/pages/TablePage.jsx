@@ -5,18 +5,15 @@ import CategoryNav from '../components/CategoryNav';
 import ProductGrid from '../components/ProductGrid';
 import ProductDetailModal from '../components/ProductDetailModal';
 
-export default function TablePage() {
+export default function TablePage({ orderType = 'dine_in' }) {
   const { tableId } = useParams();
   const [activeCategoryId, setActiveCategoryId] = useState(null);
   const [detailProduct, setDetailProduct] = useState(null);
 
-  // Default to first category (burgers) on initial load
-  const effectiveCategoryId = activeCategoryId === null
-    ? null // "TOUT" shows all
-    : activeCategoryId;
+  const effectiveCategoryId = activeCategoryId === null ? null : activeCategoryId;
 
   return (
-    <Layout tableId={tableId}>
+    <Layout tableId={tableId} orderType={orderType}>
       {/* Category Navigation */}
       <CategoryNav
         activeCategoryId={activeCategoryId}

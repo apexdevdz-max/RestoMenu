@@ -6,12 +6,21 @@ import { AuthProvider } from './context/AuthContext';
 import TablePage from './pages/TablePage';
 import NotFound from './pages/NotFound';
 
-// Wrapper that passes tableId to CartProvider for shared cart
+// Wrapper: dine-in (table QR code)
 function TableWithCart() {
   const { tableId } = useParams();
   return (
     <CartProvider tableId={tableId}>
-      <TablePage />
+      <TablePage orderType="dine_in" />
+    </CartProvider>
+  );
+}
+
+// Wrapper: takeaway (counter QR code)
+function TakeawayWithCart() {
+  return (
+    <CartProvider tableId={null}>
+      <TablePage orderType="takeaway" />
     </CartProvider>
   );
 }
@@ -31,8 +40,9 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* ==================== CUSTOMER APP (unchanged) ==================== */}
+          {/* ==================== CUSTOMER APP ==================== */}
           <Route path="/table/:tableId" element={<TableWithCart />} />
+          <Route path="/takeaway" element={<TakeawayWithCart />} />
 
           {/* Dev convenience: redirect root to table 1 */}
           <Route path="/" element={<Navigate to="/table/1" replace />} />

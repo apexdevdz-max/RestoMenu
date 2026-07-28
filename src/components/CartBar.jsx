@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext';
 
-export default function CartBar({ tableId, onCartClick, onCheckout }) {
+export default function CartBar({ tableId, orderType = 'dine_in', onCartClick, onCheckout }) {
   const { totalItems, totalPrice, isShared } = useCart();
   const { t } = useTranslation();
+  const isTakeaway = orderType === 'takeaway';
 
   if (totalItems === 0) return null;
 
@@ -26,9 +27,11 @@ export default function CartBar({ tableId, onCartClick, onCheckout }) {
           </div>
           <div className="min-w-0 text-start">
             <p className="text-sm font-semibold text-brand-dark truncate group-hover:text-brand-red transition">
-              {isShared
-                ? `${t('cart.shared')} — ${t('cart.table')} ${tableId}`
-                : `${t('cart.myCart')}: ${totalItems} ${totalItems > 1 ? t('cart.articles_plural') : t('cart.articles')}`
+              {isTakeaway
+                ? `${t('header.takeaway')} — ${totalItems} ${totalItems > 1 ? t('cart.articles_plural') : t('cart.articles')}`
+                : isShared
+                  ? `${t('cart.shared')} — ${t('cart.table')} ${tableId}`
+                  : `${t('cart.myCart')}: ${totalItems} ${totalItems > 1 ? t('cart.articles_plural') : t('cart.articles')}`
               }
             </p>
             <p className="text-sm font-bold text-brand-red">({totalPrice} {t('product.currency')})</p>

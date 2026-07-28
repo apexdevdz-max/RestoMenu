@@ -172,7 +172,7 @@ export function useSharedCart(tableNumber) {
   }, [tableNum]);
 
   // Submit the shared order
-  const submitSharedOrder = useCallback(async ({ customerName, notes }) => {
+  const submitSharedOrder = useCallback(async ({ customerName, customerPhone, notes, orderType = 'dine_in' }) => {
     if (!isSupabaseConfigured || items.length === 0) return { success: false };
 
     setIsValidating(true);
@@ -203,9 +203,11 @@ export function useSharedCart(tableNumber) {
         .from('orders')
         .insert({
           restaurant_id: DEFAULT_RESTAURANT_ID,
-          table_number: tableNum,
+          table_number: orderType === 'takeaway' ? null : tableNum,
           customer_name: customerName || null,
+          customer_phone: customerPhone || null,
           notes: notes || null,
+          order_type: orderType,
           status: 'pending',
           total: totalPrice,
         })

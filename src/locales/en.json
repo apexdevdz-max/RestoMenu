@@ -1,7 +1,8 @@
 {
   "header": {
     "slogan": "Taste Algeria",
-    "table": "Table"
+    "table": "Table",
+    "takeaway": "Takeaway"
   },
   "nav": {
     "all": "All",
@@ -37,7 +38,9 @@
     "orderSent": "Order sent!",
     "orderSentMessage": "Your order has been sent successfully.",
     "close": "Close",
-    "tableLabel": "Table"
+    "tableLabel": "Table",
+    "phone": "Phone number",
+    "phonePlaceholder": "E.g. 0661234567"
   },
   "detail": {
     "addToCart": "Add"

@@ -1,7 +1,8 @@
 {
   "header": {
     "slogan": "ذوقوا الجزائر",
-    "table": "طاولة"
+    "table": "طاولة",
+    "takeaway": "للأخذ"
   },
   "nav": {
     "all": "الكل",
@@ -37,7 +38,9 @@
     "orderSent": "تم إرسال الطلب!",
     "orderSentMessage": "تم إرسال طلبك بنجاح.",
     "close": "إغلاق",
-    "tableLabel": "طاولة"
+    "tableLabel": "طاولة",
+    "phone": "رقم الهاتف",
+    "phonePlaceholder": "مثال: 0661234567"
   },
   "detail": {
     "addToCart": "أضف"
