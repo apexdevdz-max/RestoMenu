@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { orderService } from '../services/orderService';
 import { getOrdersToDelete } from './usePurgeSettings';
+import { supabase } from '../../lib/supabase';
 
 export function useOrders() {
   const { restaurantId } = useAuth();
@@ -30,10 +31,27 @@ export function useOrders() {
     }
   }, [restaurantId]);
 
-  // Mark order as processed
+  // Mark order as processed + clear shared cart for that table
   const markAsProcessed = useCallback(async (orderId) => {
     try {
       await orderService.markAsProcessed(orderId);
+
+      // Find the order to get its table_number
+      const order = orders.find(o => o.id === orderId);
+
+      // Clear shared cart for this table (background, non-blocking)
+      if (order?.table_number && restaurantId) {
+        supabase
+          .from('table_cart_items')
+          .delete()
+          .eq('restaurant_id', restaurantId)
+          .eq('table_number', order.table_number)
+          .then(({ error }) => {
+            if (error) console.error('Error clearing cart for table:', error);
+            else console.log(`🧹 Cart cleared for table ${order.table_number}`);
+          });
+      }
+
       // Optimistic update
       setOrders(prev => prev.map(o =>
         o.id === orderId
@@ -42,10 +60,9 @@ export function useOrders() {
       ));
     } catch (err) {
       console.error('Error marking order as processed:', err);
-      // Refetch on error
       fetchOrders();
     }
-  }, [fetchOrders]);
+  }, [fetchOrders, orders, restaurantId]);
 
   // Purge expired processed orders from database
   const purgeExpiredOrders = useCallback(async () => {

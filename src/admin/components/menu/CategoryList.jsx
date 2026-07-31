@@ -176,15 +176,15 @@ export default function CategoryList({
   }
 
   return (
-    <div className="bg-brand-gray-light rounded-xl p-4 w-56 flex-shrink-0 overflow-hidden">
-      <h2 className="font-display font-bold text-base text-brand-dark mb-3">Catégories</h2>
+    <div className="bg-brand-gray-light rounded-xl p-3 md:p-4 md:w-56 flex-shrink-0 overflow-hidden">
+      <h2 className="font-display font-bold text-base text-brand-dark mb-2 md:mb-3 hidden md:block">Catégories</h2>
 
       {loading ? (
         <div className="space-y-2">
           {[1, 2, 3].map(i => <div key={i} className="skeleton h-10 rounded-lg" />)}
         </div>
       ) : (
-        <div className="space-y-1 w-full max-w-full">
+        <div className="flex md:flex-col gap-1 w-full max-w-full overflow-x-auto md:overflow-x-visible no-scrollbar pb-1 md:pb-0">
           {categories.map(cat => (
             <div key={cat.id} className="group relative w-full max-w-full">
               {editingId === cat.id ? (
@@ -212,7 +212,7 @@ export default function CategoryList({
               ) : (
                 <button
                   onClick={() => onSelect(cat.id)}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                     activeCategoryId === cat.id
                       ? 'bg-brand-red text-white shadow-btn'
                       : 'text-brand-gray hover:bg-white hover:text-brand-dark'

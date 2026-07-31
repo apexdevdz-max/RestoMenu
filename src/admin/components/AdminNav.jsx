@@ -85,13 +85,13 @@ export default function AdminNav() {
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
+        <nav className="flex items-center gap-0.5 md:absolute md:left-1/2 md:-translate-x-1/2 overflow-x-auto no-scrollbar">
           {NAV_ITEMS.map(item => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-0.5 px-3 py-1.5 text-xs font-semibold transition-colors relative ${
+                `flex flex-col items-center gap-0.5 px-3 py-1.5 text-xs font-semibold transition-colors relative flex-shrink-0 ${
                   isActive
                     ? 'text-brand-red'
                     : 'text-brand-gray hover:text-brand-dark'

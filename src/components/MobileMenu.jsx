@@ -1,6 +1,16 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+
+const LANGS = [
+  { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'ar', label: 'العربية', flag: '🇩🇿' },
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+];
 
 export default function MobileMenu({ open, onClose }) {
+  const { t, i18n } = useTranslation();
+  const current = i18n.language?.slice(0, 2) || 'fr';
+
   // Lock body scroll when open
   useEffect(() => {
     if (open) {
@@ -10,6 +20,11 @@ export default function MobileMenu({ open, onClose }) {
     }
     return () => { document.body.style.overflow = ''; };
   }, [open]);
+
+  function handleLangChange(code) {
+    i18n.changeLanguage(code);
+    onClose();
+  }
 
   return (
     <div
@@ -26,7 +41,7 @@ export default function MobileMenu({ open, onClose }) {
             <img src="/images/logo.png" alt="El-Mawid" className="w-9 h-9 rounded-full object-cover" />
             <div>
               <h2 className="font-display font-bold text-lg leading-tight text-brand-dark">El-Mawid</h2>
-              <p className="text-[11px] text-brand-gray -mt-0.5">Goûtez l'Algérie</p>
+              <p className="text-[11px] text-brand-gray -mt-0.5">{t('header.slogan')}</p>
             </div>
           </div>
           <button
@@ -67,6 +82,37 @@ export default function MobileMenu({ open, onClose }) {
             Paramètres
           </a>
         </nav>
+
+        {/* Language Section */}
+        <div className="px-5 py-4 border-t border-gray-100">
+          <p className="text-[11px] font-semibold text-brand-gray uppercase tracking-wider mb-3">
+            <svg className="w-4 h-4 inline-block me-1.5 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Langue
+          </p>
+          <div className="flex flex-col gap-1">
+            {LANGS.map(({ code, label, flag }) => (
+              <button
+                key={code}
+                onClick={() => handleLangChange(code)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  current === code
+                    ? 'bg-brand-red/10 text-brand-red ring-1 ring-brand-red/20'
+                    : 'text-brand-dark hover:bg-gray-50'
+                }`}
+              >
+                <span className="text-lg">{flag}</span>
+                <span>{label}</span>
+                {current === code && (
+                  <svg className="w-4 h-4 ms-auto text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Menu Footer */}
         <div className="px-5 py-4 border-t border-gray-100">

@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Header({ tableId, orderType = 'dine_in', onMenuOpen }) {
   const { t } = useTranslation();
@@ -28,9 +27,8 @@ export default function Header({ tableId, orderType = 'dine_in', onMenuOpen }) {
           </div>
         </div>
 
-        {/* Right side: Language + Table/Takeaway badge */}
+        {/* Right side: Table/Takeaway badge */}
         <div className="flex items-center gap-2">
-          <LanguageSwitcher />
           {isTakeaway ? (
             <span className="flex items-center gap-1.5 bg-violet-100 text-violet-700 font-semibold text-xs px-3 py-1.5 rounded-full shadow-sm">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
